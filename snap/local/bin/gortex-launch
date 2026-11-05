@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eu
+
+# Keep the daemon socket inside the snap and shared by every CLI/MCP invocation.
+export XDG_RUNTIME_DIR="$SNAP_USER_COMMON/run"
+mkdir -p "$XDG_RUNTIME_DIR" "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_CACHE_HOME"
+exec "$SNAP/bin/gortex" "$@"

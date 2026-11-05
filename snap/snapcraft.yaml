@@ -1,0 +1,78 @@
+name: gortex
+base: core26
+version: '0.64.11'
+title: Gortex
+icon: snap/gui/gortex.png
+summary: Code intelligence, repository graphs and MCP tools for AI agents
+description: |
+  Gortex indexes repositories into a local knowledge graph and exposes
+  symbol search, call graphs, impact analysis, refactoring and semantic
+  search through its CLI and MCP server. One per-user daemon can serve
+  multiple repositories, with optional HTTP access and model providers.
+
+  This strictly confined snap includes Git and the built-in parsers and
+  embedding models. Host language servers, SDKs and coding-agent executables
+  are not available. Configure your MCP client to run gortex mcp manually.
+license: Apache-2.0
+grade: stable
+confinement: strict
+website: https://github.com/zzet/gortex
+source-code:
+  - https://github.com/zzet/gortex
+  - https://github.com/sidalit/gortex-snap
+issues:
+  - https://github.com/zzet/gortex/issues
+  - https://github.com/sidalit/gortex-snap/issues
+contact: https://github.com/sidalit/gortex-snap/issues
+
+platforms:
+  amd64:
+  arm64:
+
+environment:
+  PATH: $SNAP/bin:$SNAP/usr/bin:$PATH
+  GIT_EXEC_PATH: $SNAP/usr/lib/git-core
+  GIT_TEMPLATE_DIR: $SNAP/usr/share/git-core/templates
+  XDG_CONFIG_HOME: $SNAP_USER_COMMON/config
+  XDG_DATA_HOME: $SNAP_USER_COMMON/data
+  XDG_CACHE_HOME: $SNAP_USER_COMMON/cache
+
+apps:
+  gortex:
+    command: bin/gortex-launch
+    plugs:
+      - home
+      - network
+      - network-bind
+      - removable-media
+
+parts:
+  gortex:
+    plugin: nil
+    source: https://github.com/zzet/gortex.git
+    source-tag: v$SNAPCRAFT_PROJECT_VERSION
+    source-depth: 1
+    build-snaps:
+      - go/1.27/stable
+    build-packages:
+      - build-essential
+      - git
+    build-environment:
+      - CGO_ENABLED: '1'
+      - CGO_CFLAGS: -O2 -g -fno-strict-aliasing
+      - CGO_CXXFLAGS: -O2 -g -fno-strict-aliasing
+      - GOTOOLCHAIN: local
+    stage-packages:
+      - git
+      - openssh-client
+      - libstdc++6
+    override-build: |
+      go build -mod=readonly -trimpath -tags netgo,osusergo \
+        -ldflags "-s -w -X main.version=$SNAPCRAFT_PROJECT_VERSION -X main.commit=$(git rev-parse --short HEAD) -X main.date=$(git show -s --format=%cI HEAD)" \
+        -o "$CRAFT_PART_INSTALL/bin/gortex" ./cmd/gortex
+      install -Dm644 LICENSE.md NOTICE THIRD_PARTY_NOTICES.md \
+        -t "$CRAFT_PART_INSTALL/share/doc/gortex"
+
+  scripts:
+    plugin: dump
+    source: snap/local

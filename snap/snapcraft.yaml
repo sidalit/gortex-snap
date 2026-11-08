@@ -65,7 +65,6 @@ parts:
     stage-packages:
       - git
       - openssh-client
-      - libstdc++6
     override-build: |
       go build -mod=readonly -trimpath -tags netgo,osusergo \
         -ldflags "-s -w -X main.version=$SNAPCRAFT_PROJECT_VERSION -X main.commit=$(git rev-parse --short HEAD) -X main.date=$(git show -s --format=%cI HEAD)" \

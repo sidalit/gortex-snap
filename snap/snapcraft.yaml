@@ -16,7 +16,7 @@ description: |
 license: Apache-2.0
 grade: stable
 confinement: strict
-website: https://github.com/zzet/gortex
+website: https://gortex.dev
 source-code:
   - https://github.com/zzet/gortex
   - https://github.com/sidalit/gortex-snap
